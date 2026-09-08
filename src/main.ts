@@ -9,32 +9,54 @@ class MazeScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("dog", "/assets/dog.png");
+    this.load.image("dog", "/assets/dog.png");
+    this.load.image("grass", "/assets/tiles/grass.jpg");
+    this.load.image("RockTile", "/assets/tiles/RockTile.png");
+
+    this.load.tilemapTiledJSON("level1", "/maps/level1.tmj");
     }
 
     create() {
-    this.add.text(500, 80, "DOG MAZE", {
-        fontSize: "48px",
-        color: "#ffffff"
-    }).setOrigin(0.5);
+    const map = this.make.tilemap({
+        key: "level1"
+    });
 
-    // Create the player
-    this.player = this.physics.add.sprite(
-        150,
-        150,
-        "dog"
+    const grassTileset = map.addTilesetImage(
+        "grass",
+        "grass"
     );
 
-    // Resize the dog
-    this.player.setDisplaySize(80, 100);
+    const rockTileset = map.addTilesetImage(
+        "RockTile",
+        "RockTile"
+    );
 
-    // Keep the dog inside the game
+    map.createLayer("Ground", grassTileset!);
+
+    const wallsLayer = map.createLayer(
+        "walls",
+        rockTileset!
+    );
+
+    this.physics.world.setBounds(
+    0,
+    0,
+    map.widthInPixels,
+    map.heightInPixels
+    );
+
+    wallsLayer!.setCollisionByExclusion([-1]);
+
+    this.player = this.physics.add.sprite(150, 150, "dog");
+    this.player.setDisplaySize(50, 70);
     this.player.setCollideWorldBounds(true);
 
-    // Keyboard controls
-    this.cursors = this.input.keyboard!.createCursorKeys();
+    this.physics.add.collider(
+    this.player,
+    wallsLayer!
+    );
 
-    
+    this.cursors = this.input.keyboard!.createCursorKeys();
     }
 
     update() {
@@ -63,9 +85,10 @@ class MazeScene extends Phaser.Scene {
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
+    parent: "app",
 
-    width: 1000,
-    height: 700,
+    width: 800,
+    height: 576,
 
     backgroundColor: "#87CEEB",
 

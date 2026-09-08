@@ -1,0 +1,27 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "Tiling-Grass-Texture-Main.tsx": {
+            "scaleInDock": 0.33,
+            "scaleInEditor": 1
+        },
+        "d4jmmdx-c29ba8e5-2ff4-4717-a125-5a5bd01fca46.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/Axel/Desktop/WallyGameWeb/WallyGame-Web/public/assets",
+    "map.height": 18,
+    "map.lastUsedFormat": "json",
+    "map.width": 25,
+    "openFiles": [
+    ],
+    "project": "level1.tiled-project",
+    "recentFiles": [
+        "d4jmmdx-c29ba8e5-2ff4-4717-a125-5a5bd01fca46.tsx",
+        "Tiling-Grass-Texture-Main.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}
