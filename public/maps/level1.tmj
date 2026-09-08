@@ -64,7 +64,46 @@
          "draworder":"topdown",
          "id":3,
          "name":"bone",
-         "objects":[],
+         "objects":[
+                {
+                 "gid":138,
+                 "height":32,
+                 "id":1,
+                 "name":"Bone",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":256.164116361191,
+                 "y":260.076004708256
+                }, 
+                {
+                 "gid":138,
+                 "height":32,
+                 "id":2,
+                 "name":"Bone",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":293.453505969396,
+                 "y":550.64267697999
+                }, 
+                {
+                 "gid":138,
+                 "height":32,
+                 "id":3,
+                 "name":"Bone",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":735.599125609551,
+                 "y":49.8994450983689
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -72,7 +111,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":1,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",
@@ -1527,6 +1566,29 @@
                      "x":0,
                      "y":0
                     }
+                }],
+         "tilewidth":32
+        }, 
+        {
+         "columns":0,
+         "firstgid":137,
+         "grid":
+            {
+             "height":1,
+             "orientation":"orthogonal",
+             "width":1
+            },
+         "margin":0,
+         "name":"Bone",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":32,
+         "tiles":[
+                {
+                 "id":1,
+                 "image":"..\/assets\/bone.png",
+                 "imageheight":32,
+                 "imagewidth":32
                 }],
          "tilewidth":32
         }],

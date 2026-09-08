@@ -3,12 +3,34 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "RockTile.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "Tiling-Grass-Texture-Main.tsx": {
             "scaleInDock": 0.33,
             "scaleInEditor": 1
         },
+        "bone.tsx": {
+            "scaleInDock": 0.12,
+            "scaleInEditor": 1
+        },
         "d4jmmdx-c29ba8e5-2ff4-4717-a125-5a5bd01fca46.tsx": {
             "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "grass.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level1.tmj#Bone": {
+            "dynamicWrapping": true,
+            "scaleInEditor": 0.5
+        },
+        "level1.tmj#RockTile": {
+            "scaleInEditor": 1
+        },
+        "level1.tmj#grass": {
             "scaleInEditor": 1
         }
     },
@@ -20,8 +42,13 @@
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "bone.tsx",
+        "RockTile.tsx",
+        "grass.tsx",
         "d4jmmdx-c29ba8e5-2ff4-4717-a125-5a5bd01fca46.tsx",
         "Tiling-Grass-Texture-Main.tsx"
     ],
-    "tileset.lastUsedFormat": "tsx"
+    "tileset.embedInMap": true,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
 }
