@@ -1,178 +1,415 @@
 import Phaser from "phaser";
 
 class MazeScene extends Phaser.Scene {
+
+    // ============================================================
+    // PLAYER
+    // ============================================================
+
     private player!: Phaser.Physics.Arcade.Sprite;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
+
+    // ============================================================
+    // BONES / COLLECTIBLES
+    // ============================================================
+
     private bones!: Phaser.Physics.Arcade.Group;
     private boneCount = 0;
+
+
+    // ============================================================
+    // UI
+    // ============================================================
+
     private boneText!: Phaser.GameObjects.Text;
     private instructions!: Phaser.GameObjects.Text;
 
-    private collectBone(
-        player: Phaser.GameObjects.GameObject,
-        bone: Phaser.GameObjects.GameObject
-    ) {
-        bone.destroy();
 
-        this.boneCount++;
-
-        this.boneText.setText(`Bones: ${this.boneCount}`);
-    }
+    // ============================================================
+    // CONSTRUCTOR
+    // ============================================================
 
     constructor() {
         super("MazeScene");
     }
 
-    preload() {
-    this.load.image("dog", "/assets/dog.png");
-    this.load.image("grass", "/assets/tiles/grass.jpg");
-    this.load.image("RockTile", "/assets/tiles/RockTile.png");
-    this.load.image("bone", "/assets/bone.png");
-    this.load.image("plant repack_0", "/assets/tiles/plant repack_0.png");
 
-    this.load.tilemapTiledJSON("level1", "/maps/level1.tmj");
+    // ============================================================
+    // PRELOAD
+    // Load all images, tilesets, and maps here
+    // ============================================================
+
+    preload() {
+
+        // -------------------------
+        // Player
+        // -------------------------
+
+        this.load.image(
+            "dog",
+            "/assets/dog.png"
+        );
+
+
+        // -------------------------
+        // Environment / Tiles
+        // -------------------------
+
+        this.load.image(
+            "grass",
+            "/assets/tiles/grass.jpg"
+        );
+
+        this.load.image(
+            "RockTile",
+            "/assets/tiles/RockTile.png"
+        );
+
+        this.load.image(
+            "plant repack_0",
+            "/assets/tiles/plant repack_0.png"
+        );
+
+
+        // -------------------------
+        // Collectibles
+        // -------------------------
+
+        this.load.image(
+            "bone",
+            "/assets/bone.png"
+        );
+
+
+        // -------------------------
+        // Tiled Maps
+        // -------------------------
+
+        this.load.tilemapTiledJSON(
+            "level1",
+            "/maps/level1.tmj"
+        );
     }
+
+
+    // ============================================================
+    // CREATE
+    // Set up the level, player, collectibles, UI, and collisions
+    // ============================================================
 
     create() {
-    const map = this.make.tilemap({
-        key: "level1"
-    });
 
-    const grassTileset = map.addTilesetImage(
-        "grass",
-        "grass"
-    );
+        // ========================================================
+        // LOAD LEVEL 1
+        // ========================================================
 
-    const rockTileset = map.addTilesetImage(
-        "RockTile",
-        "RockTile"
-    );
+        const map = this.make.tilemap({
+            key: "level1"
+        });
 
-    const plantTileset = map.addTilesetImage(
-        "Plants",
-        "plant repack_0"
-    );
 
-    map.createLayer("Ground", grassTileset!);
+        // ========================================================
+        // LOAD TILESETS
+        // These names must match the tileset names in Tiled
+        // ========================================================
 
-    map.createLayer("plant", plantTileset!);
+        const grassTileset = map.addTilesetImage(
+            "grass",
+            "grass"
+        );
 
-    const wallsLayer = map.createLayer(
-        "walls",
-        rockTileset!
-    );
+        const rockTileset = map.addTilesetImage(
+            "RockTile",
+            "RockTile"
+        );
 
-    
+        const plantTileset = map.addTilesetImage(
+            "Plants",
+            "plant repack_0"
+        );
 
-    this.physics.world.setBounds(
-    0,
-    0,
-    map.widthInPixels,
-    map.heightInPixels
-    );
 
-    wallsLayer!.setCollisionByExclusion([-1]);
+        // ========================================================
+        // CREATE MAP LAYERS
+        // ========================================================
 
-    const objectLayer = map.getObjectLayer("bone");
+        // Ground / grass
+        map.createLayer(
+            "Ground",
+            grassTileset!
+        );
 
-    this.bones = this.physics.add.group();
+        // Plants / trees
+        map.createLayer(
+            "plant",
+            plantTileset!
+        );
 
-    objectLayer?.objects.forEach((object) => {
-        if (object.name === "Bone") {
-            const bone = this.bones.create(
-                object.x! + 16,
-                object.y! - 16,
-                "bone"
-            );
+        // Rock walls
+        const wallsLayer = map.createLayer(
+            "walls",
+            rockTileset!
+        );
 
-            bone.setDisplaySize(32, 32);
-        }
-    });
 
-    this.player = this.physics.add.sprite(100, 100, "dog");
-    this.player.setDisplaySize(50, 70);
-    this.player.setCollideWorldBounds(true);
+        // ========================================================
+        // WORLD BOUNDS
+        // Makes the physics world match the Tiled map size
+        // ========================================================
 
-    this.boneText = this.add.text(20, 20, "Bones: 0", {
-        fontSize: "28px",
-        color: "#ffffff",
-        backgroundColor: "#f77a05",
-        padding: {
-            x: 10,
-            y: 5
-        }
-    });
+        this.physics.world.setBounds(
+            0,
+            0,
+            map.widthInPixels,
+            map.heightInPixels
+        );
 
-    this.instructions = this.add.text(20, 520, "Use arrow keys to move, collect bones!", {
-        fontSize: "20px",
-        color: "#ffffff",
-        backgroundColor: "#3a6451",
-        padding: {
-            x: 10,
-            y: 5
-        }
-    });
 
-    this.physics.add.overlap(
-        this.player,
-        this.bones,
-        this.collectBone,
-        undefined,
-        this
-    );
+        // ========================================================
+        // WALL COLLISION
+        // Makes all non-empty tiles in the walls layer solid
+        // ========================================================
 
-    
+        wallsLayer!.setCollisionByExclusion([-1]);
 
-    this.physics.add.collider(
-    this.player,
-    wallsLayer!
-    );
 
-    this.cursors = this.input.keyboard!.createCursorKeys();
+        // ========================================================
+        // BONE OBJECTS
+        // Read the bone objects placed in Tiled
+        // ========================================================
+
+        const objectLayer = map.getObjectLayer("bone");
+
+        // Create a Phaser physics group for the bones
+        this.bones = this.physics.add.group();
+
+
+        // Loop through every object in the Tiled bone layer
+        objectLayer?.objects.forEach((object) => {
+
+            // Only create a bone if the object is named "Bone"
+            if (object.name === "Bone") {
+
+                const bone = this.bones.create(
+                    object.x! + 16,
+                    object.y! - 16,
+                    "bone"
+                );
+
+                // Make the bone 32x32
+                bone.setDisplaySize(32, 32);
+            }
+        });
+
+
+        // ========================================================
+        // PLAYER
+        // ========================================================
+
+        this.player = this.physics.add.sprite(
+            100,
+            100,
+            "dog"
+        );
+
+        // Player size
+        this.player.setDisplaySize(
+            50,
+            70
+        );
+
+        // Prevent the dog from leaving the game world
+        this.player.setCollideWorldBounds(true);
+
+
+        // ========================================================
+        // UI - BONE COUNTER
+        // ========================================================
+
+        this.boneText = this.add.text(
+            20,
+            20,
+            "Bones: 0",
+            {
+                fontSize: "28px",
+                color: "#ffffff",
+                backgroundColor: "#f77a05",
+                padding: {
+                    x: 10,
+                    y: 5
+                }
+            }
+        );
+
+
+        // ========================================================
+        // UI - INSTRUCTIONS
+        // ========================================================
+
+        this.instructions = this.add.text(
+            20,
+            520,
+            "Use arrow keys to move, collect bones!",
+            {
+                fontSize: "20px",
+                color: "#ffffff",
+                backgroundColor: "#3a6451",
+                padding: {
+                    x: 10,
+                    y: 5
+                }
+            }
+        );
+
+
+        // ========================================================
+        // BONE COLLECTION
+        // Detect when the dog touches a bone
+        // ========================================================
+
+        this.physics.add.overlap(
+            this.player,
+            this.bones,
+            this.collectBone,
+            undefined,
+            this
+        );
+
+
+        // ========================================================
+        // WALL COLLISION
+        // Prevent the dog from walking through walls
+        // ========================================================
+
+        this.physics.add.collider(
+            this.player,
+            wallsLayer!
+        );
+
+
+        // ========================================================
+        // KEYBOARD CONTROLS
+        // ========================================================
+
+        this.cursors =
+            this.input.keyboard!.createCursorKeys();
     }
 
+
+    // ============================================================
+    // UPDATE
+    // Runs every frame and handles player movement
+    // ============================================================
+
     update() {
+
+        // Player movement speed
         const speed = 200;
 
-        // Stop the dog before checking movement
+
+        // Stop the dog before checking for input
         this.player.setVelocity(0);
+
+
+        // -------------------------
+        // Move Left
+        // -------------------------
 
         if (this.cursors.left.isDown) {
             this.player.setVelocityX(-speed);
         }
 
+
+        // -------------------------
+        // Move Right
+        // -------------------------
+
         if (this.cursors.right.isDown) {
             this.player.setVelocityX(speed);
         }
+
+
+        // -------------------------
+        // Move Up
+        // -------------------------
 
         if (this.cursors.up.isDown) {
             this.player.setVelocityY(-speed);
         }
 
+
+        // -------------------------
+        // Move Down
+        // -------------------------
+
         if (this.cursors.down.isDown) {
             this.player.setVelocityY(speed);
         }
     }
+
+
+    // ============================================================
+    // COLLECT BONE
+    // Called when the player touches a bone
+    // ============================================================
+
+    private collectBone(
+        player: Phaser.GameObjects.GameObject,
+        bone: Phaser.GameObjects.GameObject
+    ) {
+
+        // Remove the bone from the game
+        bone.destroy();
+
+
+        // Increase the bone counter
+        this.boneCount++;
+
+
+        // Update the UI
+        this.boneText.setText(
+            `Bones: ${this.boneCount}`
+        );
+    }
 }
 
+
+// =================================================================
+// PHASER GAME CONFIGURATION
+// =================================================================
+
 const config: Phaser.Types.Core.GameConfig = {
+
+    // Automatically choose WebGL or Canvas
     type: Phaser.AUTO,
+
+    // HTML element where Phaser is placed
     parent: "app",
 
+    // Game resolution
     width: 800,
     height: 576,
 
+    // Background color
     backgroundColor: "#87CEEB",
 
+    // Physics settings
     physics: {
         default: "arcade",
+
         arcade: {
             debug: false
         }
     },
 
+    // Game scenes
     scene: MazeScene
 };
+
+
+// =================================================================
+// START GAME
+// =================================================================
 
 new Phaser.Game(config);
