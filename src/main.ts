@@ -7,6 +7,7 @@ class MazeScene extends Phaser.Scene {
     private bones!: Phaser.Physics.Arcade.Group;
     private boneCount = 0;
     private boneText!: Phaser.GameObjects.Text;
+    private instructions!: Phaser.GameObjects.Text;
 
     private collectBone(
         player: Phaser.GameObjects.GameObject,
@@ -28,6 +29,7 @@ class MazeScene extends Phaser.Scene {
     this.load.image("grass", "/assets/tiles/grass.jpg");
     this.load.image("RockTile", "/assets/tiles/RockTile.png");
     this.load.image("bone", "/assets/bone.png");
+    this.load.image("plant repack_0", "/assets/tiles/plant repack_0.png");
 
     this.load.tilemapTiledJSON("level1", "/maps/level1.tmj");
     }
@@ -47,7 +49,14 @@ class MazeScene extends Phaser.Scene {
         "RockTile"
     );
 
+    const plantTileset = map.addTilesetImage(
+        "Plants",
+        "plant repack_0"
+    );
+
     map.createLayer("Ground", grassTileset!);
+
+    map.createLayer("plant", plantTileset!);
 
     const wallsLayer = map.createLayer(
         "walls",
@@ -70,28 +79,20 @@ class MazeScene extends Phaser.Scene {
     this.bones = this.physics.add.group();
 
     objectLayer?.objects.forEach((object) => {
-    if (object.name === "Bone") {
-        const bone = this.bones.create(
-            object.x!,
-            object.y!,
-            "bone"
-        );
+        if (object.name === "Bone") {
+            const bone = this.bones.create(
+                object.x! + 16,
+                object.y! - 16,
+                "bone"
+            );
 
-        bone.setDisplaySize(32, 32);
-    }
+            bone.setDisplaySize(32, 32);
+        }
     });
 
     this.player = this.physics.add.sprite(100, 100, "dog");
     this.player.setDisplaySize(50, 70);
     this.player.setCollideWorldBounds(true);
-
-    this.physics.add.overlap(
-        this.player,
-        this.bones,
-        this.collectBone,
-        undefined,
-        this
-    );
 
     this.boneText = this.add.text(20, 20, "Bones: 0", {
         fontSize: "28px",
@@ -102,6 +103,26 @@ class MazeScene extends Phaser.Scene {
             y: 5
         }
     });
+
+    this.instructions = this.add.text(20, 520, "Use arrow keys to move, collect bones!", {
+        fontSize: "20px",
+        color: "#ffffff",
+        backgroundColor: "#3a6451",
+        padding: {
+            x: 10,
+            y: 5
+        }
+    });
+
+    this.physics.add.overlap(
+        this.player,
+        this.bones,
+        this.collectBone,
+        undefined,
+        this
+    );
+
+    
 
     this.physics.add.collider(
     this.player,

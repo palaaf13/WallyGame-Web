@@ -1,8 +1,12 @@
 {
-    "activeFile": "",
+    "activeFile": "level1.tmj",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
         "RockTile.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -23,25 +27,53 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "level1.tmj": {
+            "expandedObjectLayers": [
+                3
+            ],
+            "scale": 2.06,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 400.4854368932039,
+                "y": 296.11650485436894
+            }
+        },
         "level1.tmj#Bone": {
             "dynamicWrapping": true,
+            "scaleInDock": 1,
             "scaleInEditor": 0.5
         },
+        "level1.tmj#Bushes": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level1.tmj#Plants": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "level1.tmj#RockTile": {
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "level1.tmj#grass": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "C:/Users/Axel/Desktop/WallyGameWeb/WallyGame-Web/public/assets",
+    "last.externalTilesetPath": "C:/Users/Axel/Desktop/WallyGameWeb/WallyGame-Web/public/maps",
+    "last.imagePath": "C:/Users/Axel/Desktop/WallyGameWeb/WallyGame-Web/public/assets/tiles",
     "map.height": 18,
     "map.lastUsedFormat": "json",
     "map.width": 25,
     "openFiles": [
+        "level1.tmj"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "level1.tmj",
         "bone.tsx",
         "RockTile.tsx",
         "grass.tsx",
@@ -50,5 +82,5 @@
     ],
     "tileset.embedInMap": true,
     "tileset.lastUsedFormat": "tsx",
-    "tileset.type": 1
+    "tileset.type": 0
 }
