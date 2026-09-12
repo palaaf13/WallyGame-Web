@@ -1,6 +1,12 @@
 import Phaser from "phaser";
 
 class MazeScene extends Phaser.Scene {
+    // ============================================================
+    // LEVEL
+    // ============================================================
+
+    private currentLevel = 1;
+    
 
     // ============================================================
     // PLAYER
@@ -24,6 +30,9 @@ class MazeScene extends Phaser.Scene {
 
     private boneText!: Phaser.GameObjects.Text;
     private instructions!: Phaser.GameObjects.Text;
+    
+
+    
 
 
     // ============================================================
@@ -34,6 +43,9 @@ class MazeScene extends Phaser.Scene {
         super("MazeScene");
     }
 
+    init(data: { level?: number }) {
+        this.currentLevel = data.level ?? 1;
+    }
 
     // ============================================================
     // PRELOAD
@@ -71,6 +83,11 @@ class MazeScene extends Phaser.Scene {
             "/assets/tiles/plant repack_0.png"
         );
 
+        this.load.image(
+            "tileset1",
+            "/assets/tiles/tileset1.png"
+        );
+
 
         // -------------------------
         // Collectibles
@@ -90,6 +107,11 @@ class MazeScene extends Phaser.Scene {
             "level1",
             "/maps/level1.tmj"
         );
+
+        this.load.tilemapTiledJSON(
+            "level2",
+            "/maps/level2.tmj"
+        );
     }
 
 
@@ -104,8 +126,12 @@ class MazeScene extends Phaser.Scene {
         // LOAD LEVEL 1
         // ========================================================
 
+        const mapKey = this.currentLevel === 1
+            ? "level1"
+            : "level2";
+
         const map = this.make.tilemap({
-            key: "level1"
+            key: mapKey
         });
 
 
@@ -114,43 +140,49 @@ class MazeScene extends Phaser.Scene {
         // These names must match the tileset names in Tiled
         // ========================================================
 
-        const grassTileset = map.addTilesetImage(
-            "grass",
-            "grass"
-        );
+        let wallsLayer: Phaser.Tilemaps.TilemapLayer;
 
-        const rockTileset = map.addTilesetImage(
-            "RockTile",
-            "RockTile"
-        );
+        if (this.currentLevel === 1) {
 
-        const plantTileset = map.addTilesetImage(
-            "Plants",
-            "plant repack_0"
-        );
+            const grassTileset = map.addTilesetImage("grass", "grass");
+            const rockTileset = map.addTilesetImage("RockTile", "RockTile");
+            const plantTileset = map.addTilesetImage(
+                "Plants",
+                "plant repack_0"
+            );
 
+            map.createLayer("Ground", grassTileset!);
+            map.createLayer("plant", plantTileset!);
 
-        // ========================================================
-        // CREATE MAP LAYERS
-        // ========================================================
+            
 
-        // Ground / grass
-        map.createLayer(
-            "Ground",
-            grassTileset!
-        );
+            wallsLayer = map.createLayer(
+                "walls",
+                rockTileset!
+            )!;
 
-        // Plants / trees
-        map.createLayer(
-            "plant",
-            plantTileset!
-        );
+        } else {
 
-        // Rock walls
-        const wallsLayer = map.createLayer(
-            "walls",
-            rockTileset!
-        );
+            const tileset1 = map.addTilesetImage(
+                "tileset1",
+                "tileset1"
+            );
+
+            map.createLayer(
+                "ground_under_walls",
+                tileset1!
+            );
+
+            map.createLayer(
+                "ground",
+                tileset1!
+            );
+
+            wallsLayer = map.createLayer(
+                "walls",
+                tileset1!
+            )!;
+        }
 
 
         // ========================================================
@@ -215,12 +247,42 @@ class MazeScene extends Phaser.Scene {
 
         // Player size
         this.player.setDisplaySize(
-            50,
-            70
+            25,
+            35
         );
 
         // Prevent the dog from leaving the game world
         this.player.setCollideWorldBounds(true);
+
+        if (this.currentLevel === 1) {
+
+            const exitLayer = map.getObjectLayer("level1_exit");
+
+            const exitObject = exitLayer?.objects.find(
+                (object) => object.name === "exit_square1"
+            );
+
+            if (exitObject) {
+
+                const exit = this.add.rectangle(
+                    exitObject.x! + exitObject.width! / 2,
+                    exitObject.y! + exitObject.height! / 2,
+                    exitObject.width!,
+                    exitObject.height!
+                );
+
+                this.physics.add.existing(exit, true);
+
+                this.physics.add.overlap(
+                    this.player,
+                    exit,
+                    () => {
+                        console.log("EXIT REACHED!");
+                        this.scene.restart({ level: 2 });
+                    }
+                );
+            }
+        }
 
 
         // ========================================================
@@ -346,6 +408,8 @@ class MazeScene extends Phaser.Scene {
         if (this.cursors.down.isDown) {
             this.player.setVelocityY(speed);
         }
+
+        
     }
 
 
@@ -372,7 +436,10 @@ class MazeScene extends Phaser.Scene {
             `Bones: ${this.boneCount}`
         );
     }
+
+    
 }
+
 
 
 // =================================================================
