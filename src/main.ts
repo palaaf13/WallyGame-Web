@@ -29,7 +29,7 @@ class MazeScene extends Phaser.Scene {
     // ============================================================
 
     private boneText!: Phaser.GameObjects.Text;
-    private instructions!: Phaser.GameObjects.Text;
+    
     
 
     
@@ -60,7 +60,7 @@ class MazeScene extends Phaser.Scene {
 
         this.load.image(
             "dog",
-            "/assets/dog.png"
+            `${import.meta.env.BASE_URL}assets/dog.png`
         );
 
 
@@ -70,22 +70,22 @@ class MazeScene extends Phaser.Scene {
 
         this.load.image(
             "grass",
-            "/assets/tiles/grass.jpg"
+            `${import.meta.env.BASE_URL}assets/tiles/grass.jpg`
         );
 
         this.load.image(
             "RockTile",
-            "/assets/tiles/RockTile.png"
+            `${import.meta.env.BASE_URL}assets/tiles/RockTile.png`
         );
 
         this.load.image(
             "plant repack_0",
-            "/assets/tiles/plant repack_0.png"
+            `${import.meta.env.BASE_URL}assets/tiles/plant repack_0.png`
         );
 
         this.load.image(
             "tileset1",
-            "/assets/tiles/tileset1.png"
+            `${import.meta.env.BASE_URL}assets/tiles/tileset1.png`
         );
 
 
@@ -95,7 +95,7 @@ class MazeScene extends Phaser.Scene {
 
         this.load.image(
             "bone",
-            "/assets/bone.png"
+            `${import.meta.env.BASE_URL}assets/bone.png`
         );
 
 
@@ -105,12 +105,12 @@ class MazeScene extends Phaser.Scene {
 
         this.load.tilemapTiledJSON(
             "level1",
-            "/maps/level1.tmj"
+            `${import.meta.env.BASE_URL}maps/level1.tmj`
         );
 
         this.load.tilemapTiledJSON(
             "level2",
-            "/maps/level2.tmj"
+            `${import.meta.env.BASE_URL}maps/level2.tmj`
         );
     }
 
@@ -159,7 +159,7 @@ class MazeScene extends Phaser.Scene {
             wallsLayer = map.createLayer(
                 "walls",
                 rockTileset!
-            )!;
+            )! as Phaser.Tilemaps.TilemapLayer;
 
         } else {
 
@@ -181,7 +181,7 @@ class MazeScene extends Phaser.Scene {
             wallsLayer = map.createLayer(
                 "walls",
                 tileset1!
-            )!;
+            )! as Phaser.Tilemaps.TilemapLayer;
         }
 
 
@@ -309,7 +309,7 @@ class MazeScene extends Phaser.Scene {
         // UI - INSTRUCTIONS
         // ========================================================
 
-        this.instructions = this.add.text(
+        this.add.text(
             20,
             520,
             "Use arrow keys to move, collect bones!",
@@ -333,9 +333,15 @@ class MazeScene extends Phaser.Scene {
         this.physics.add.overlap(
             this.player,
             this.bones,
-            this.collectBone,
-            undefined,
-            this
+            (_player, bone) => {
+                (bone as Phaser.GameObjects.GameObject).destroy();
+
+                this.boneCount++;
+
+                this.boneText.setText(
+                    `Bones: ${this.boneCount}`
+                );
+            }
         );
 
 
@@ -418,24 +424,6 @@ class MazeScene extends Phaser.Scene {
     // Called when the player touches a bone
     // ============================================================
 
-    private collectBone(
-        player: Phaser.GameObjects.GameObject,
-        bone: Phaser.GameObjects.GameObject
-    ) {
-
-        // Remove the bone from the game
-        bone.destroy();
-
-
-        // Increase the bone counter
-        this.boneCount++;
-
-
-        // Update the UI
-        this.boneText.setText(
-            `Bones: ${this.boneCount}`
-        );
-    }
 
     
 }
