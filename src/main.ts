@@ -29,6 +29,9 @@ class MazeScene extends Phaser.Scene {
     // ============================================================
 
     private boneText!: Phaser.GameObjects.Text;
+
+    // LOSE CODE
+    private isLosing = false;
     
     
 
@@ -45,6 +48,7 @@ class MazeScene extends Phaser.Scene {
 
     init(data: { level?: number }) {
         this.currentLevel = data.level ?? 1;
+        this.isLosing = false;
     }
 
     // ============================================================
@@ -112,6 +116,14 @@ class MazeScene extends Phaser.Scene {
             "level2",
             `${import.meta.env.BASE_URL}maps/level2.tmj`
         );
+
+        // LOSE ANIMATION
+        
+        this.load.video(
+            "loseVideo",
+            `${import.meta.env.BASE_URL}assets/lose-animation.mp4`
+        );
+
     }
 
 
@@ -254,6 +266,53 @@ class MazeScene extends Phaser.Scene {
         // Prevent the dog from leaving the game world
         this.player.setCollideWorldBounds(true);
 
+        
+        if (this.currentLevel === 2) {
+
+            // Find the object layer from Tiled
+            const loseLayer = map.getObjectLayer("lose_object_layer1");
+
+            // Find the rectangle named ground_hole
+            const hole = loseLayer?.objects.find(
+                (object) => object.name === "ground_hole"
+            );
+
+            if (hole && hole.width !== undefined && hole.height !== undefined) {
+
+                // Create an invisible rectangle at the object's position
+                const loseZone = this.add.rectangle(
+                    hole.x! + hole.width / 2,
+                    hole.y! + hole.height / 2,
+                    hole.width,
+                    hole.height,
+                    0xff0000,
+                    0
+                );
+
+                // Give the rectangle a static physics body
+                this.physics.add.existing(loseZone, true);
+
+                // Detect when the dog enters the zone
+                
+                this.physics.add.overlap(this.player, loseZone, () => {
+                    if (this.isLosing) return;
+
+                    this.isLosing = true;
+                    this.boneCount = 0;
+
+                    console.log("GROUND HOLE REACHED!");
+
+                    this.playLoseAnimation();
+                });
+
+            } else {
+                console.warn(
+                    "Could not find ground_hole in lose_object_layer1"
+                );
+            }
+        }
+
+
         if (this.currentLevel === 1) {
 
             const exitLayer = map.getObjectLayer("level1_exit");
@@ -363,6 +422,44 @@ class MazeScene extends Phaser.Scene {
         this.cursors =
             this.input.keyboard!.createCursorKeys();
     }
+
+    
+    private playLoseAnimation() {
+        // Stop the player from moving.
+        this.player.setVelocity(0, 0);
+
+        // Pause the game physics during the animation.
+        this.physics.world.pause();
+
+        
+        const camera = this.cameras.main;
+
+        const video = this.add.video(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            "loseVideo"
+        );
+
+        video.setOrigin(0.5);
+        video.setScrollFactor(0);
+        video.setDepth(1000);
+
+        // Your source video is 1920 × 1080 (16:9).
+        // Fit it inside the game screen without cropping.
+        const videoWidth = this.scale.width;
+        const videoHeight = videoWidth * (1080 / 1920);
+
+        video.setDisplaySize(100, 100);
+
+        video.once("complete", () => {
+            this.physics.world.resume();
+            this.scene.restart({ level: 2 });
+        });
+
+        video.play(false);
+
+    }
+
 
 
     // ============================================================

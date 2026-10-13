@@ -1,5 +1,5 @@
 {
-    "activeFile": "level1.tmj",
+    "activeFile": "level2.tmj",
     "expandedProjectPaths": [
         "."
     ],
@@ -41,13 +41,14 @@
         },
         "level1.tmj": {
             "expandedObjectLayers": [
+                7,
                 3
             ],
             "scale": 1,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 753,
-                "y": 535
+                "x": 400.5,
+                "y": 287.5
             }
         },
         "level1.tmj#Bone": {
@@ -82,8 +83,8 @@
             "scale": 1.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 393.33333333333337,
-                "y": 308
+                "x": 412,
+                "y": 287.33333333333326
             }
         },
         "level2.tmj#bone": {
@@ -102,12 +103,14 @@
     "map.tileWidth": 16,
     "map.width": 50,
     "openFiles": [
-        "level1.tmj"
+        "level1.tmj",
+        "level2.tmj"
     ],
     "project": "level1.tiled-project",
     "property.type": "bool",
     "recentFiles": [
         "level1.tmj",
+        "level2.tmj",
         "bone.tsx",
         "RockTile.tsx",
         "grass.tsx",
