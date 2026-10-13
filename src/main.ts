@@ -432,7 +432,7 @@ class MazeScene extends Phaser.Scene {
         this.physics.world.pause();
 
         
-        const camera = this.cameras.main;
+        
 
         const video = this.add.video(
             this.scale.width / 2,
@@ -443,12 +443,6 @@ class MazeScene extends Phaser.Scene {
         video.setOrigin(0.5);
         video.setScrollFactor(0);
         video.setDepth(1000);
-
-        // Your source video is 1920 × 1080 (16:9).
-        // Fit it inside the game screen without cropping.
-        const videoWidth = this.scale.width;
-        const videoHeight = videoWidth * (1080 / 1920);
-
         video.setDisplaySize(100, 100);
 
         video.once("complete", () => {
