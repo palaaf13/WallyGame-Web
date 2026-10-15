@@ -15,6 +15,14 @@ class MazeScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
+    // Enemies
+    private enemy!: Phaser.Physics.Arcade.Sprite;
+    private enemyDirection = 1;
+    private enemySpeed = 150;
+
+    private enemyLeft = 0;
+    private enemyRight = 0;
+
 
     // ============================================================
     // BONES / COLLECTIBLES
@@ -62,6 +70,12 @@ class MazeScene extends Phaser.Scene {
         // Player
         // -------------------------
 
+        this.load.image(
+            "dog",
+            `${import.meta.env.BASE_URL}assets/dog.png`
+        );
+
+        // Enemies
         this.load.image(
             "dog",
             `${import.meta.env.BASE_URL}assets/dog.png`
@@ -421,6 +435,39 @@ class MazeScene extends Phaser.Scene {
 
         this.cursors =
             this.input.keyboard!.createCursorKeys();
+
+        // Enemy
+        if (this.currentLevel === 2) {
+            // Patrol range inside the bottom corridor
+            this.enemyLeft = 216;
+            this.enemyRight = 690;
+
+            // Center of the corridor
+            const enemyY = 420;
+
+            this.enemy = this.physics.add.sprite(
+                this.enemyLeft,
+                enemyY,
+                "enemy"
+            );
+
+            this.enemy.setDisplaySize(28, 28);
+            this.enemy.setCollideWorldBounds(true);
+
+            // Stop the enemy from walking through stone walls
+            this.physics.add.collider(this.enemy, wallsLayer!);
+
+            // Start walking right
+            this.enemyDirection = 1;
+            this.enemy.setVelocityX(this.enemySpeed);
+        }
+        this.physics.add.overlap(this.player, this.enemy, () => {
+            if (this.isLosing) return;
+
+            this.isLosing = true;
+            this.boneCount = 0;
+            this.scene.restart({ level: 2 });
+        });
     }
 
     
@@ -504,6 +551,19 @@ class MazeScene extends Phaser.Scene {
 
         if (this.cursors.down.isDown) {
             this.player.setVelocityY(speed);
+        }
+
+        // Enemy patrol logic for level 2
+        if (this.currentLevel === 2 && this.enemy) {
+            if (this.enemy.x >= this.enemyRight) {
+                this.enemyDirection = -1;
+            } else if (this.enemy.x <= this.enemyLeft) {
+                this.enemyDirection = 1;
+            }
+
+            this.enemy.setVelocityX(
+                this.enemySpeed * this.enemyDirection
+            );
         }
 
         
