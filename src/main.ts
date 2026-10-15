@@ -77,8 +77,13 @@ class MazeScene extends Phaser.Scene {
 
         // Enemies
         this.load.image(
-            "dog",
-            `${import.meta.env.BASE_URL}assets/dog.png`
+            "enemy-walk1",
+            `${import.meta.env.BASE_URL}assets/enemy-walk1.png`
+        );
+
+        this.load.image(
+            "enemy-walk2",
+            `${import.meta.env.BASE_URL}assets/enemy-walk2.png`
         );
 
 
@@ -140,6 +145,18 @@ class MazeScene extends Phaser.Scene {
 
     }
 
+    // Enemy Animations
+    private createEnemyAnimation() {
+        this.anims.create({
+            key: "enemy-walk",
+            frames: [
+                { key: "enemy-walk1" },
+                { key: "enemy-walk2" }
+            ],
+            frameRate: 6,
+            repeat: -1
+        });
+    }
 
     // ============================================================
     // CREATE
@@ -437,6 +454,9 @@ class MazeScene extends Phaser.Scene {
             this.input.keyboard!.createCursorKeys();
 
         // Enemy
+
+        this.createEnemyAnimation();
+
         if (this.currentLevel === 2) {
             // Patrol range inside the bottom corridor
             this.enemyLeft = 216;
@@ -448,10 +468,12 @@ class MazeScene extends Phaser.Scene {
             this.enemy = this.physics.add.sprite(
                 this.enemyLeft,
                 enemyY,
-                "enemy"
+                "enemy-walk1"
             );
 
-            this.enemy.setDisplaySize(28, 28);
+            this.enemy.play("enemy-walk");
+
+            this.enemy.setDisplaySize(38, 38);
             this.enemy.setCollideWorldBounds(true);
 
             // Stop the enemy from walking through stone walls
@@ -564,6 +586,9 @@ class MazeScene extends Phaser.Scene {
             this.enemy.setVelocityX(
                 this.enemySpeed * this.enemyDirection
             );
+
+            // Flip the sprite when moving left or right.
+            this.enemy.setFlipX(this.enemyDirection < 0);
         }
 
         
