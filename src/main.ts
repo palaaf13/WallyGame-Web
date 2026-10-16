@@ -159,6 +159,47 @@ class MazeScene extends Phaser.Scene {
     }
 
     // ============================================================
+    // Temporary Text Display
+    // ============================================================
+
+    
+    private showNotification(
+        x: number,
+        y: number,
+        message: string,
+        color = "#ffcc00"
+    ): void {
+        const notifyText = this.add.text(x, y, message, {
+            fontSize: "28px",
+            fontStyle: "bold",
+            color: color,
+            backgroundColor: "#222222",
+            padding: {
+                x: 16,
+                y: 10
+            },
+            stroke: "#000000",
+            strokeThickness: 5
+        });
+
+        notifyText.setOrigin(0.5);
+        notifyText.setScrollFactor(0);
+        notifyText.setDepth(2000);
+
+        this.tweens.add({
+            targets: notifyText,
+            y: y - 40,
+            alpha: 0,
+            duration: 2000,
+            ease: "Cubic.easeOut",
+            onComplete: () => {
+                notifyText.destroy();
+            }
+        });
+    }
+
+
+    // ============================================================
     // CREATE
     // Set up the level, player, collectibles, UI, and collisions
     // ============================================================
@@ -414,6 +455,12 @@ class MazeScene extends Phaser.Scene {
             }
         );
 
+        // ========================================================
+        // Temporary Text
+        // ========================================================
+
+        
+
 
         // ========================================================
         // BONE COLLECTION
@@ -483,12 +530,34 @@ class MazeScene extends Phaser.Scene {
             this.enemyDirection = 1;
             this.enemy.setVelocityX(this.enemySpeed);
         }
+
+        // Lose condition: If the player touches the enemy, they lose and restart the level.
+
         this.physics.add.overlap(this.player, this.enemy, () => {
-            if (this.isLosing) return;
+            if (this.isLosing) {
+                this.player.setVelocity(0, 0);
+                return;
+            }
 
             this.isLosing = true;
             this.boneCount = 0;
-            this.scene.restart({ level: 2 });
+            
+            // Stop the player and enemy.
+            this.player.setVelocity(0, 0);
+            this.enemy.setVelocity(0, 0);
+
+            // Show the notification first.
+            this.showNotification(
+                400,
+                288,
+                "You lost!",
+                "#ff3333"
+            );
+
+            // Restart Level 2 after the notification has time to show.
+            this.time.delayedCall(2000, () => {
+                this.scene.restart({ level: 2 });
+            });       
         });
     }
 
