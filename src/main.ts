@@ -31,6 +31,9 @@ class MazeScene extends Phaser.Scene {
     private bones!: Phaser.Physics.Arcade.Group;
     private boneCount = 0;
 
+    private keys!: Phaser.Physics.Arcade.Group;
+    private keyCount = 0;
+
 
     // ============================================================
     // UI
@@ -121,6 +124,10 @@ class MazeScene extends Phaser.Scene {
             `${import.meta.env.BASE_URL}assets/bone.png`
         );
 
+        this.load.image(
+            "key",
+            `${import.meta.env.BASE_URL}assets/key.png`
+        );
 
         // -------------------------
         // Tiled Maps
@@ -134,6 +141,11 @@ class MazeScene extends Phaser.Scene {
         this.load.tilemapTiledJSON(
             "level2",
             `${import.meta.env.BASE_URL}maps/level2.tmj`
+        );
+
+        this.load.tilemapTiledJSON(
+            "boss_level",
+            `${import.meta.env.BASE_URL}maps/boss_level.tmj`
         );
 
         // LOSE ANIMATION
@@ -212,7 +224,9 @@ class MazeScene extends Phaser.Scene {
 
         const mapKey = this.currentLevel === 1
             ? "level1"
-            : "level2";
+            : this.currentLevel === 2
+            ? "level2"
+            : "boss_level";
 
         const map = this.make.tilemap({
             key: mapKey
@@ -234,10 +248,11 @@ class MazeScene extends Phaser.Scene {
                 "Plants",
                 "plant repack_0"
             );
+            const keyTileset = map.addTilesetImage("key", "key");
 
             map.createLayer("Ground", grassTileset!);
             map.createLayer("plant", plantTileset!);
-
+            map.createLayer("key", keyTileset!);
             
 
             wallsLayer = map.createLayer(
@@ -318,6 +333,36 @@ class MazeScene extends Phaser.Scene {
             }
         });
 
+        // ========================================================
+        // KEY OBJECTS
+        // Read the key objects placed in Tiled
+        // ========================================================
+
+        const keyLayer = map.getObjectLayer("key");
+
+        // Create a Phaser physics group for the keys
+        this.keys = this.physics.add.group();
+
+
+        // Loop through every object in the Tiled key layer
+        keyLayer?.objects.forEach((object) => {
+
+            // Only create a key if the object is named "key"
+            if (object.name === "key") {
+
+                const key = this.keys.create(
+                    object.x! + 16,
+                    object.y! - 16,
+                    "key"
+                );
+
+                // Make the key 32x32
+                key.setDisplaySize(32, 32);
+            }
+        }
+        
+    );
+
 
         // ========================================================
         // PLAYER
@@ -338,16 +383,53 @@ class MazeScene extends Phaser.Scene {
         // Prevent the dog from leaving the game world
         this.player.setCollideWorldBounds(true);
 
-        
+        if (this.currentLevel === 3) {
+            // Center the player in the boss level
+            this.player.setPosition(
+                682,
+                172
+            );
+
+        }
+
         if (this.currentLevel === 2) {
 
             // Find the object layer from Tiled
             const loseLayer = map.getObjectLayer("lose_object_layer1");
 
+            const exitLayer2 = map.getObjectLayer("entrance-1");
+
             // Find the rectangle named ground_hole
             const hole = loseLayer?.objects.find(
                 (object) => object.name === "ground_hole"
             );
+
+            // Find boss entrance rectangle
+            const entrance = exitLayer2?.objects.find(
+                (object) => object.name === "boss_entrance"
+            );
+
+            // Boss entrance logic
+            if (entrance) {
+
+                const exit = this.add.rectangle(
+                    entrance.x! + entrance.width! / 2,
+                    entrance.y! + entrance.height! / 2,
+                    entrance.width!,
+                    entrance.height!
+                );
+
+                this.physics.add.existing(exit, true);
+
+                this.physics.add.overlap(
+                    this.player,
+                    exit,
+                    () => {
+                        console.log("EXIT REACHED!");
+                        this.scene.restart({ level: 3 });
+                    }
+                );
+            }
 
             if (hole && hole.width !== undefined && hole.height !== undefined) {
 
@@ -463,8 +545,8 @@ class MazeScene extends Phaser.Scene {
 
 
         // ========================================================
-        // BONE COLLECTION
-        // Detect when the dog touches a bone
+        // BONE/KEY COLLECTION
+        // Detect when the dog touches a bone or key
         // ========================================================
 
         this.physics.add.overlap(
@@ -477,6 +559,23 @@ class MazeScene extends Phaser.Scene {
 
                 this.boneText.setText(
                     `Bones: ${this.boneCount}`
+                );
+            }
+        );
+
+        this.physics.add.overlap(
+            this.player,
+            this.keys,
+            (_player, key) => {
+                (key as Phaser.GameObjects.GameObject).destroy();
+
+                this.keyCount++;
+
+                this.showNotification(
+                    400,
+                    288,
+                    "You found a key!",
+                    "#00ff00"
                 );
             }
         );
@@ -662,15 +761,6 @@ class MazeScene extends Phaser.Scene {
 
         
     }
-
-
-    // ============================================================
-    // COLLECT BONE
-    // Called when the player touches a bone
-    // ============================================================
-
-
-    
 }
 
 

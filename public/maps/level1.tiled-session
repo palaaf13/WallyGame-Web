@@ -12,6 +12,9 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "#key": {
+            "scaleInDock": 1
+        },
         "#tileset1": {
             "dynamicWrapping": false,
             "scaleInDock": 1
@@ -31,6 +34,24 @@
             "scaleInDock": 0.12,
             "scaleInEditor": 1
         },
+        "boss_level.tmj": {
+            "expandedObjectLayers": [
+                6,
+                5
+            ],
+            "scale": 1.5,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 769,
+                "y": 175.3333333333333
+            }
+        },
+        "boss_level.tmj#key": {
+            "scaleInEditor": 1
+        },
+        "boss_level.tmj#tileset1": {
+            "scaleInDock": 1
+        },
         "d4jmmdx-c29ba8e5-2ff4-4717-a125-5a5bd01fca46.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -41,14 +62,14 @@
         },
         "level1.tmj": {
             "expandedObjectLayers": [
-                3,
-                7
+                7,
+                3
             ],
             "scale": 1,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 400.5,
-                "y": 287.5
+                "x": 433.5,
+                "y": 287
             }
         },
         "level1.tmj#Bone": {
@@ -78,13 +99,15 @@
         },
         "level2.tmj": {
             "expandedObjectLayers": [
-                6
+                6,
+                7,
+                8
             ],
             "scale": 1.5,
-            "selectedLayer": 3,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 223.33333333333331,
-                "y": 460
+                "x": 247,
+                "y": 338
             }
         },
         "level2.tmj#bone": {
@@ -120,8 +143,8 @@
     "tileset.embedInMap": true,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 32,
-        "width": 32
+        "height": 16,
+        "width": 16
     },
     "tileset.type": 0
 }

@@ -335,9 +335,32 @@
          "width":50,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":8,
+         "name":"entrance-1",
+         "objects":[
+                {
+                 "height":64.6666666666667,
+                 "id":10,
+                 "name":"boss_entrance",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":11.3333333333333,
+                 "x":13.3333333333333,
+                 "y":238.666666666667
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":8,
- "nextobjectid":10,
+ "nextlayerid":9,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",
