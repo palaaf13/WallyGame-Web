@@ -206,6 +206,18 @@
                  "width":39.3333333333334,
                  "x":749.333333333333,
                  "y":125.333333333333
+                }, 
+                {
+                 "height":430.666666666667,
+                 "id":6,
+                 "name":"enemy_bounds",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":347.333333333333,
+                 "x":69.3333333333333,
+                 "y":62.6666666666667
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -237,8 +249,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":7,
- "nextobjectid":5,
+ "nextlayerid":8,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

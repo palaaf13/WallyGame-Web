@@ -1,5 +1,5 @@
 {
-    "activeFile": "level2.tmj",
+    "activeFile": "boss_level.tmj",
     "expandedProjectPaths": [
         "."
     ],
@@ -42,8 +42,8 @@
             "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 769,
-                "y": 175.3333333333333
+                "x": 453,
+                "y": 260
             }
         },
         "boss_level.tmj#key": {
@@ -59,6 +59,9 @@
         "grass.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "key.tsx": {
+            "scaleInDock": 1
         },
         "level1.tmj": {
             "expandedObjectLayers": [
@@ -127,13 +130,15 @@
     "map.width": 50,
     "openFiles": [
         "level1.tmj",
-        "level2.tmj"
+        "level2.tmj",
+        "boss_level.tmj"
     ],
     "project": "level1.tiled-project",
     "property.type": "bool",
     "recentFiles": [
         "level1.tmj",
         "level2.tmj",
+        "boss_level.tmj",
         "bone.tsx",
         "RockTile.tsx",
         "grass.tsx",

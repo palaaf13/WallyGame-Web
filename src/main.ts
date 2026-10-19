@@ -23,6 +23,29 @@ class MazeScene extends Phaser.Scene {
     private enemyLeft = 0;
     private enemyRight = 0;
 
+    private enemy2!: Phaser.Physics.Arcade.Sprite;
+
+    private enemy2DirectionX = 1;
+    private enemy2DirectionY = 1;
+    private enemy2Speed = 200;
+
+    // Patrol rectangle taken from Tiled
+    private enemy2Left = 0;
+    private enemy2Right = 0;
+    private enemy2Top = 0;
+    private enemy2Bottom = 0;
+
+    // 0 = horizontal, 1 = diagonal, 2 = vertical
+    private enemy2PatrolMode = 0;
+    private enemy2ModeTimer = 0;
+    private enemy2ModeDuration = 2500;
+
+    // Fireball projectiles
+    private fireballs!: Phaser.Physics.Arcade.Group;
+    private enemyFireballTimer = 0;
+    private enemyFireballCooldown = 1000; // 1.5 seconds
+    private enemyFireballSpeed = 250;
+
 
     // ============================================================
     // BONES / COLLECTIBLES
@@ -87,6 +110,12 @@ class MazeScene extends Phaser.Scene {
         this.load.image(
             "enemy-walk2",
             `${import.meta.env.BASE_URL}assets/enemy-walk2.png`
+        );
+
+        // Enemy 2
+        this.load.image(
+            "dog2",
+            `${import.meta.env.BASE_URL}assets/dog2.png`
         );
 
 
@@ -155,6 +184,11 @@ class MazeScene extends Phaser.Scene {
             `${import.meta.env.BASE_URL}assets/lose-animation.mp4`
         );
 
+        this.load.image(
+        "fireball",
+        `${import.meta.env.BASE_URL}assets/fireball.png`
+        );
+
     }
 
     // Enemy Animations
@@ -169,6 +203,8 @@ class MazeScene extends Phaser.Scene {
             repeat: -1
         });
     }
+
+    
 
     // ============================================================
     // Temporary Text Display
@@ -384,13 +420,57 @@ class MazeScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
 
         if (this.currentLevel === 3) {
-            // Center the player in the boss level
-            this.player.setPosition(
-                682,
-                172
+            // Position the player in the boss level
+            this.player.setPosition(682, 172);
+
+            // Find enemy_bounds in the Tiled "exit" object layer
+            const exitLayer = map.getObjectLayer("exit");
+
+            const boundsObject = exitLayer?.objects.find(
+                (object) => object.name === "enemy_bounds"
             );
 
+            if (
+                boundsObject &&
+                boundsObject.width !== undefined &&
+                boundsObject.height !== undefined
+            ) {
+                // Use the rectangle in Tiled as the patrol area
+                this.enemy2Left = boundsObject.x!;
+                this.enemy2Right = boundsObject.x! + boundsObject.width;
+                this.enemy2Top = boundsObject.y!;
+                this.enemy2Bottom = boundsObject.y! + boundsObject.height;
+
+                // Start near the center of the patrol area
+                this.enemy2 = this.physics.add.sprite(
+                    (this.enemy2Left + this.enemy2Right) / 2,
+                    (this.enemy2Top + this.enemy2Bottom) / 2,
+                    "dog2"
+                );
+
+                this.enemy2.setDisplaySize(38, 38);
+                this.enemy2.setCollideWorldBounds(true);
+
+                // Prevent the enemy from passing through walls
+                this.physics.add.collider(this.enemy2, wallsLayer!);
+
+                // Start moving horizontally
+                this.enemy2DirectionX = 1;
+                this.enemy2DirectionY = 1;
+                this.enemy2PatrolMode = 0;
+                this.enemy2ModeTimer = 0;
+
+                this.enemy2.setVelocityX(this.enemy2Speed);
+                this.enemy2.setVelocityY(0);
+            } else {
+                console.warn(
+                    'Could not find "enemy_bounds" in the Tiled "exit" layer.'
+                );
+            }
+
+            
         }
+        
 
         if (this.currentLevel === 2) {
 
@@ -420,15 +500,27 @@ class MazeScene extends Phaser.Scene {
                 );
 
                 this.physics.add.existing(exit, true);
-
+                
+                
                 this.physics.add.overlap(
                     this.player,
                     exit,
                     () => {
-                        console.log("EXIT REACHED!");
-                        this.scene.restart({ level: 3 });
+                        if (this.boneCount >= 9) {
+                            console.log("EXIT REACHED!");
+                            this.scene.restart({ level: 3 });
+                        } else {
+                            this.showNotification(
+                                400,
+                                288,
+                                `Collect ${9 - this.boneCount} more bones!`,
+                                "#ff3333"
+                            );
+                        }
                     }
                 );
+            
+                
             }
 
             if (hole && hole.width !== undefined && hole.height !== undefined) {
@@ -490,8 +582,17 @@ class MazeScene extends Phaser.Scene {
                     this.player,
                     exit,
                     () => {
-                        console.log("EXIT REACHED!");
-                        this.scene.restart({ level: 2 });
+                        if (this.boneCount >= 3) {
+                            console.log("EXIT REACHED!");
+                            this.scene.restart({ level: 2 });
+                        } else {
+                            this.showNotification(
+                                400,
+                                288,
+                                `Collect ${3 - this.boneCount} more bones!`,
+                                "#ff3333"
+                            );
+                        }
                     }
                 );
             }
@@ -630,6 +731,7 @@ class MazeScene extends Phaser.Scene {
             this.enemy.setVelocityX(this.enemySpeed);
         }
 
+        
         // Lose condition: If the player touches the enemy, they lose and restart the level.
 
         this.physics.add.overlap(this.player, this.enemy, () => {
@@ -658,6 +760,82 @@ class MazeScene extends Phaser.Scene {
                 this.scene.restart({ level: 2 });
             });       
         });
+
+        // Lose condition for Boss Level (Level 3): If the player touches the enemy, they lose and restart the level.
+
+        this.physics.add.overlap(this.player, this.enemy2, () => {
+            if (this.isLosing) {
+                this.player.setVelocity(0, 0);
+                return;
+            }
+
+            this.isLosing = true;
+            this.boneCount = 0;
+            
+            // Stop the player and enemy.
+            this.player.setVelocity(0, 0);
+            this.enemy2.setVelocity(0, 0);
+
+            // Show the notification first.
+            this.showNotification(
+                400,
+                288,
+                "You lost!",
+                "#ff3333"
+            );
+
+            // Restart Level 3 after the notification has time to show.
+            this.time.delayedCall(2000, () => {
+                this.scene.restart({ level: 3 });
+            });       
+        });
+
+        // ============================================================
+        // Fireball Projectiles for Boss Level (Level 3)
+        // ========================================================
+
+        // Create a group to manage the boss's fireballs
+        this.fireballs = this.physics.add.group({
+            defaultKey: "fireball",
+            maxSize: 30
+        });
+
+        // Fireball hits player
+        this.physics.add.overlap(
+            this.player,
+            this.fireballs,
+            (_player, fireball) => {
+                if (this.isLosing) return;
+
+                this.isLosing = true;
+                this.player.setVelocity(0, 0);
+                this.enemy2.setVelocity(0, 0);
+
+                // Remove the fireball that hit the player
+                (fireball as Phaser.GameObjects.GameObject).destroy();
+
+                this.showNotification(
+                    400,
+                    288,
+                    "You got burned!",
+                    "#ff3333"
+                );
+
+                // Restart the boss level after the message
+                this.time.delayedCall(2000, () => {
+                    this.scene.restart({ level: 3 });
+                });
+            }
+        );
+
+        // Fireballs disappear when they hit walls
+        this.physics.add.collider(
+            this.fireballs,
+            wallsLayer!,
+            (_fireball, wallObject) => {
+                (wallObject as Phaser.GameObjects.GameObject).destroy();
+            }
+        );
     }
 
     
@@ -691,7 +869,50 @@ class MazeScene extends Phaser.Scene {
 
     }
 
+    private shootFireball(): void {
+        if (!this.enemy2 || !this.player || this.isLosing) {
+            return;
+        }
 
+        // Get a fireball from the group, or create one
+        const fireball = this.fireballs.get(
+            this.enemy2.x,
+            this.enemy2.y,
+            "fireball"
+        ) as Phaser.Physics.Arcade.Sprite | null;
+
+        if (!fireball) return;
+
+        fireball.enableBody(true, this.enemy2.x, this.enemy2.y, true, true);
+        fireball.setActive(true);
+        fireball.setVisible(true);
+        fireball.setDisplaySize(20, 20);
+
+        // Calculate the angle from the enemy to the player's current position
+        const angle = Phaser.Math.Angle.Between(
+            this.enemy2.x,
+            this.enemy2.y,
+            this.player.x,
+            this.player.y
+        );
+
+        // Give the fireball velocity toward the player
+        this.physics.velocityFromRotation(
+            angle,
+            this.enemyFireballSpeed,
+            fireball.body!.velocity
+        );
+
+        // Rotate the image to face the direction it travels
+        fireball.setRotation(angle);
+
+        // Remove it after 3 seconds if it doesn't hit anything
+        this.time.delayedCall(3000, () => {
+            if (fireball.active) {
+                fireball.destroy();
+            }
+        });
+    }
 
     // ============================================================
     // UPDATE
@@ -757,6 +978,90 @@ class MazeScene extends Phaser.Scene {
 
             // Flip the sprite when moving left or right.
             this.enemy.setFlipX(this.enemyDirection < 0);
+        }
+
+        // Enemy 2 patrol logic for Boss Level (Level 3)
+        if (this.currentLevel === 3 && this.enemy2 && !this.isLosing) {
+            const halfWidth = this.enemy2.displayWidth / 2;
+            const halfHeight = this.enemy2.displayHeight / 2;
+
+            // Switch between horizontal, diagonal, and vertical movement
+            this.enemy2ModeTimer += this.game.loop.delta;
+
+            if (this.enemy2ModeTimer >= this.enemy2ModeDuration) {
+                this.enemy2ModeTimer = 0;
+                this.enemy2PatrolMode =
+                    (this.enemy2PatrolMode + 1) % 3;
+            }
+
+            // Bounce off the left and right edges
+            if (this.enemy2.x + halfWidth >= this.enemy2Right) {
+                this.enemy2DirectionX = -1;
+            } else if (this.enemy2.x - halfWidth <= this.enemy2Left) {
+                this.enemy2DirectionX = 1;
+            }
+
+            // Bounce off the top and bottom edges
+            if (this.enemy2.y + halfHeight >= this.enemy2Bottom) {
+                this.enemy2DirectionY = -1;
+            } else if (this.enemy2.y - halfHeight <= this.enemy2Top) {
+                this.enemy2DirectionY = 1;
+            }
+
+            // Mode 0: Horizontal
+            if (this.enemy2PatrolMode === 0) {
+                this.enemy2.setVelocity(
+                    this.enemy2Speed * this.enemy2DirectionX,
+                    0
+                );
+            }
+
+            // Mode 1: Diagonal
+            else if (this.enemy2PatrolMode === 1) {
+                this.enemy2.setVelocity(
+                    this.enemy2Speed * this.enemy2DirectionX,
+                    this.enemy2Speed * this.enemy2DirectionY
+                );
+            }
+
+            // Mode 2: Vertical
+            else {
+                this.enemy2.setVelocity(
+                    0,
+                    this.enemy2Speed * this.enemy2DirectionY
+                );
+            }
+
+            // Flip the sprite based on its current direction
+            if (this.enemy2.body!.velocity.x !== 0) {
+                this.enemy2.setFlipX(this.enemy2.body!.velocity.x < 0);
+            }
+
+            
+        }
+        // Fireball shooting logic for Boss Level (Level 3)
+
+        // Boss shoots fireballs every 1.5 seconds
+        if (this.currentLevel === 3 && this.enemy2 && !this.isLosing) {
+            this.enemyFireballTimer += this.game.loop.delta;
+
+            if (this.enemyFireballTimer >= this.enemyFireballCooldown) {
+                this.enemyFireballTimer = 0;
+                this.shootFireball();
+            }
+        }
+
+        //Finish the game when the player collects the key in level 3
+        if (this.currentLevel === 3) {
+            if (this.keyCount === 1) {
+                this.showNotification(
+                    400,
+                    288,
+                    "You found the key! Game Over!",
+                    "#00ff00"
+                );
+                this.physics.world.pause();
+            }
         }
 
         
