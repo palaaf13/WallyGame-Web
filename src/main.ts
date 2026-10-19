@@ -420,6 +420,18 @@ class MazeScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
 
         if (this.currentLevel === 3) {
+
+            this.physics.world.pause();
+            this.showNotification(
+                400,
+                288,
+                "Boss fight, Collect the key to win!",
+                "#00ff00"
+            );
+            this.time.delayedCall(2000, () => {
+                this.physics.world.resume();
+            });
+
             // Position the player in the boss level
             this.player.setPosition(682, 172);
 
@@ -1053,11 +1065,13 @@ class MazeScene extends Phaser.Scene {
 
         //Finish the game when the player collects the key in level 3
         if (this.currentLevel === 3) {
+            
+
             if (this.keyCount === 1) {
                 this.showNotification(
                     400,
                     288,
-                    "You found the key! Game Over!",
+                    "You found the key! You win!",
                     "#00ff00"
                 );
                 this.physics.world.pause();
