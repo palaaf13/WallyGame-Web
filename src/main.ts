@@ -544,7 +544,7 @@ class MazeScene extends Phaser.Scene {
                     if (this.isLosing) return;
 
                     this.isLosing = true;
-                    this.boneCount = 0;
+                    this.boneCount = 3;
 
                     console.log("GROUND HOLE REACHED!");
 
@@ -741,7 +741,7 @@ class MazeScene extends Phaser.Scene {
             }
 
             this.isLosing = true;
-            this.boneCount = 0;
+            this.boneCount = 3;
             
             // Stop the player and enemy.
             this.player.setVelocity(0, 0);
