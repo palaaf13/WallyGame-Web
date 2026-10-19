@@ -27,7 +27,7 @@ class MazeScene extends Phaser.Scene {
 
     private enemy2DirectionX = 1;
     private enemy2DirectionY = 1;
-    private enemy2Speed = 200;
+    private enemy2Speed = 250;
 
     // Patrol rectangle taken from Tiled
     private enemy2Left = 0;
