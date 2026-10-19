@@ -421,13 +421,14 @@ class MazeScene extends Phaser.Scene {
 
         if (this.currentLevel === 3) {
 
-            this.physics.world.pause();
             this.showNotification(
                 400,
                 288,
                 "Boss fight, Collect the key to win!",
                 "#00ff00"
             );
+            this.physics.world.pause();
+            
             this.time.delayedCall(2000, () => {
                 this.physics.world.resume();
             });

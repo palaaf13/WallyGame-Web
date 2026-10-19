@@ -1,5 +1,5 @@
 {
-    "activeFile": "boss_level.tmj",
+    "activeFile": "level2.tmj",
     "expandedProjectPaths": [
         "."
     ],
@@ -107,7 +107,7 @@
                 8
             ],
             "scale": 1.5,
-            "selectedLayer": 0,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 247,
                 "y": 338
@@ -137,8 +137,8 @@
     "property.type": "bool",
     "recentFiles": [
         "level1.tmj",
-        "level2.tmj",
         "boss_level.tmj",
+        "level2.tmj",
         "bone.tsx",
         "RockTile.tsx",
         "grass.tsx",
